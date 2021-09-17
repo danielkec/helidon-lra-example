@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lra-coordinator
+  labels:
+    app: lra-coordinator
+spec:
+  type: NodePort
+  selector:
+    app: lra-coordinator
+  ports:
+  - port: 8070
+    targetPort: 8080
+    name: 8070-tcp
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lra-coordinator
+  labels:
+    app: lra-coordinator
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lra-coordinator
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: lra-coordinator
+        version: v1
+    spec:
+      containers:
+        - name: lra-coordinator
+          image: docker.io/jbosstm/lra-coordinator:5.12.1.Final
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: dockercred

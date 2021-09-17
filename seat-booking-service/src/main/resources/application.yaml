@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+  static.classpath:
+    location: /WEB
+    welcome: index.html
+
+mp.lra:
+  coordinator.url: http://lra-coordinator:8070/lra-coordinator
+  propagation.active: true
+  participant.url: http://seat-booking-service:8080
+
+javax.sql.DataSource:
+  booking-db:
+    dataSourceClassName: com.mysql.cj.jdbc.MysqlDataSource
+    dataSource:
+      serverName: booking-db
+      port: 3306
+      databaseName: booking-db
+      user: user
+      password: pass

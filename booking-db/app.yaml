@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-db
+  labels:
+    app: booking-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: booking-db
+  template:
+    metadata:
+      labels:
+        name: booking-db
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      containers:
+        - name: booking-db
+          image: mysql:8
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "toor"
+            - name: MYSQL_DATABASE
+              value: "booking-db"
+            - name: MYSQL_USER
+              value: "user"
+            - name: MYSQL_PASSWORD
+              value: "pass"
+          ports:
+            - name: mysql
+              containerPort: 3306
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-db
+  labels:
+    name: booking-db
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    name: booking-db
