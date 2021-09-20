@@ -28,8 +28,6 @@ images:
   newTag: "1.0"
 EOF
 
-kubectl apply -k .
+kubectl apply -k . --namespace ${NAMESPACE}
 
-# Expose on OCI
-kubectl expose deployment ${SEAT_SERVICE} --port=8080 --type=LoadBalancer --name=${NAMESPACE}
 echo "Application ${NAMESPACE} will be available at ???"
