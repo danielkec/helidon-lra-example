@@ -3,12 +3,14 @@ kind: Service
 metadata:
   name: oci-load-balancing-service
   labels:
-    app: oci-load-balancing-service
+    app: seat-booking-service
   annotations:
     service.beta.kubernetes.io/oci-load-balancer-shape: 10Mbps
 spec:
   type: LoadBalancer
   ports:
-    - port: 8080
+    - name: http
+      port: 80
+      targetPort: 80
   selector:
-    app: oci-load-balancing-service
+    app: seat-booking-service
