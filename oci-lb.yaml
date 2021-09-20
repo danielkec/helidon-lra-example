@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: oci-load-balancing-service
   labels:
-    app: seat-booking-service
+    app: oci-load-balancing-service
   annotations:
     service.beta.kubernetes.io/oci-load-balancer-shape: 10Mbps
 spec:
