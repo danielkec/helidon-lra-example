@@ -13,19 +13,19 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- booking-db/app.yaml
-- payment-service/app.yaml
-- seat-booking-service/app.yaml
-- lra-coordinator-service/app.yaml
-- oci-lb.yaml
+  - booking-db/app.yaml
+  - payment-service/app.yaml
+  - seat-booking-service/app.yaml
+  - lra-coordinator-service/app.yaml
+  - oci-lb.yaml
 
 images:
-- name: cinema-reservation/payment-service
-  newName: fra.ocir.io/fr8yxyel2vcv/repokec/cinema-reservation/payment-service
-  newTag: "1.0"
-- name: cinema-reservation/seat-booking-service
-  newName: fra.ocir.io/fr8yxyel2vcv/repokec/cinema-reservation/seat-booking-service
-  newTag: "1.0"
+  - name: cinema-reservation/payment-service
+    newName: fra.ocir.io/fr8yxyel2vcv/repokec/cinema-reservation/payment-service
+    newTag: "1.0"
+  - name: cinema-reservation/seat-booking-service
+    newName: fra.ocir.io/fr8yxyel2vcv/repokec/cinema-reservation/seat-booking-service
+    newTag: "1.0"
 EOF
 
 kubectl apply -k . --namespace ${NAMESPACE}
