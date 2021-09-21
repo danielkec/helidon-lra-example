@@ -1,7 +1,43 @@
-# helidon-lra-example
-Online Cinema Booking
+# Helidon Cinema Reservation
+## MicroProfile LRA example
 
 ## Deploy to minikube
+Prerequisites:
+* Installed and started minikube
+* Environment with 
+[minikube docker daemon](https://minikube.sigs.k8s.io/docs/handbook/pushing/#1-pushing-directly-to-the-in-cluster-docker-daemon-docker-env) - `eval $(minikube docker-env)`
+
+### Build images
+As we work directly with 
+[minikube docker daemon](https://minikube.sigs.k8s.io/docs/handbook/pushing/#1-pushing-directly-to-the-in-cluster-docker-daemon-docker-env)
+all we need to do is build the docker images.
+```shell
+bash build.sh;
+```
+First build can take few minutes for all the artefacts to download,
+subsequent builds are going to be much faster as the layer with dependencies gets cached.
+
+### Deploy to minikube
+```shell
+bash deploy-minikube.sh
+```
+Script recreates whole namespace, any previous state of the `cinema-reservation` is obliterated.
+Deployment is exposed via NodePort and url with port is printed at the end of the output:
+```shell
+namespace "cinema-reservation" deleted
+namespace/cinema-reservation created
+Context "minikube" modified.
+service/booking-db created
+service/lra-coordinator created
+service/payment-service created
+service/seat-booking-service created
+deployment.apps/booking-db created
+deployment.apps/lra-coordinator created
+deployment.apps/payment-service created
+deployment.apps/seat-booking-service created
+service/cinema-reservation exposed
+Application cinema-reservation will be available at http://192.168.99.107:31584
+```
 
 ## Deploy to OCI OKE cluster
 Prerequisites:

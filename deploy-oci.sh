@@ -1,4 +1,7 @@
 #!/bin/bash
+##
+# The script is expected to run in the OCI Cloud console
+#
 
 NAMESPACE=cinema-reservation
 

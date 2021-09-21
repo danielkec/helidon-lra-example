@@ -3,11 +3,9 @@ VERSION=1.0
 NS=cinema-reservation
 DIR=$(pwd)
 
-eval $(minikube docker-env)
-
 # Fail fast in case docker hub login is needed
-docker pull docker.io/mysql:8
-docker pull docker.io/jbosstm/lra-coordinator:5.12.1.Final
+docker pull mysql:8
+docker pull jbosstm/lra-coordinator:5.12.1.Final
 
 for service in 'payment-service' 'seat-booking-service';
   do
