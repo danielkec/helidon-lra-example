@@ -5,6 +5,7 @@ metadata:
   labels:
     app: oci-load-balancing-service
   annotations:
+    # Smallest possible LB shape to avoid issues with OCI quotas
     service.beta.kubernetes.io/oci-load-balancer-shape: 10Mbps
 spec:
   type: LoadBalancer

@@ -86,5 +86,5 @@ kubectl get services
 ```
 
 You can see that right after deployment EXTERNAL-IP of the external LoadBalancer reads as `<pending>`
-because OCI is provisioning it for you. But if you invoke `kubectl get services` it will 
+because OCI is provisioning it for you. But if you invoke `kubectl get services` a little later it will 
 give you external ip address with Helidon Cinema example exposed on port 80.
