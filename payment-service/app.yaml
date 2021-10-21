@@ -9,8 +9,8 @@ spec:
   selector:
     app: payment-service
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 7002
+    targetPort: 7002
     name: http
 ---
 
@@ -38,4 +38,4 @@ spec:
           image: cinema-reservation/payment-service:1.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - containerPort: 7002

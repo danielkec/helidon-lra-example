@@ -17,6 +17,14 @@
 # 1st stage, build the app
 FROM maven:3.6-jdk-11 as build
 
+################## TODO: Remove after 2.4.0 release
+WORKDIR /helidon-frm
+RUN apt-get -y update
+RUN apt-get -y install git
+RUN git clone https://github.com/oracle/helidon.git
+RUN cd helidon && mvn install -DskipTests
+##################################################
+
 WORKDIR /helidon
 
 # Create a first layer to cache the "Maven World" in the local repository.

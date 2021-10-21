@@ -1,5 +1,6 @@
 package io.helidon.example.lra.booking;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,23 @@ public class BookingService {
                 .setParameter("id", id)
                 .getResultStream()
                 .findFirst();
+    }
+
+    public Optional<Booking> getBookingByLraId(URI lraId) {
+        return entityManager.createNamedQuery("getBookingByLraId", Booking.class)
+                .setParameter("lraId", lraId.toASCIIString())
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Transactional
+    public Optional<Booking> clearBooking(URI lraId) {
+        return getBookingByLraId(lraId)
+                .map(booking -> {
+                   entityManager.remove(booking);
+                   entityManager.flush();
+                   return booking;
+                });
     }
 
     @Transactional

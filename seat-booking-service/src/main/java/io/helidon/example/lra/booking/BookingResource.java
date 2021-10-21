@@ -4,12 +4,14 @@ package io.helidon.example.lra.booking;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.persistence.NoResultException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -17,8 +19,14 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.sse.Sse;
+import javax.ws.rs.sse.SseBroadcaster;
+import javax.ws.rs.sse.SseEventSink;
 
 import io.helidon.microprofile.server.Server;
 
@@ -26,12 +34,15 @@ import org.eclipse.microprofile.lra.annotation.Compensate;
 import org.eclipse.microprofile.lra.annotation.Complete;
 import org.eclipse.microprofile.lra.annotation.ParticipantStatus;
 import org.eclipse.microprofile.lra.annotation.ws.rs.LRA;
+import org.glassfish.jersey.media.sse.OutboundEvent;
 
 @Path("/booking")
 @ApplicationScoped
 public class BookingResource {
 
-    Logger LOG = Logger.getLogger(BookingResource.class.getSimpleName());
+    private static final Logger LOG = Logger.getLogger(BookingResource.class.getSimpleName());
+
+    private SseBroadcaster sseBroadcaster;
 
     private static final JsonBuilderFactory JSON = Json.createBuilderFactory(Collections.emptyMap());
 
@@ -44,11 +55,14 @@ public class BookingResource {
 
     @PUT
     @Path("/create/{id}")
-    @LRA(LRA.Type.REQUIRES_NEW)
+    @LRA(value = LRA.Type.REQUIRES_NEW, end = false, timeLimit = 15)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createBooking(@HeaderParam(LRA.LRA_HTTP_CONTEXT_HEADER) URI lraId,
                                   @PathParam("id") long id,
                                   Booking booking) {
+
+        booking.setLraId(lraId.toASCIIString());
+
         if (repository.createBooking(booking, id)) {
             LOG.info("Creating booking for " + id);
             return Response.ok().build();
@@ -64,9 +78,42 @@ public class BookingResource {
         }
     }
 
+    @PUT
+    @Path("/payment")
+    @LRA(value = LRA.Type.MANDATORY, end = false)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response makePayment(@HeaderParam(LRA.LRA_HTTP_CONTEXT_HEADER) URI lraId,
+                                JsonObject jsonObject) {
+        //jsonObject.getString("");
+        LOG.info("Payment " + jsonObject.toString());
+        ClientBuilder.newClient()
+                .target("http://payment-service:7002")
+                .path("/payment/confirm")
+                .request()
+                .rx()
+                .put(Entity.entity(jsonObject, MediaType.APPLICATION_JSON))
+                .whenComplete((res, t) -> {
+                    if (res != null) {
+                        LOG.info(res.getStatus() + " " + res.getStatusInfo().getReasonPhrase());
+                        res.close();
+                    }
+                });
+        return Response.accepted().build();
+    }
+
     @Compensate
     public Response paymentFailed(URI lraId) {
         LOG.info("Payment failed! " + lraId);
+        repository.clearBooking(lraId)
+                .ifPresent(booking -> {
+                    LOG.info("Booking for seat " + booking.getSeat().getId() + "cleared!");
+                    Optional.ofNullable(sseBroadcaster)
+                            .ifPresent(b -> b.broadcast(new OutboundEvent.Builder()
+                                    .data(booking.getSeat())
+                                    .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                                    .build())
+                            );
+                });
         return Response.ok(ParticipantStatus.Completed.name()).build();
     }
 
@@ -94,6 +141,16 @@ public class BookingResource {
     public List<Seat> getAllBookedSeats() {
         LOG.info("Getting all booked seats.");
         return repository.getAllBookedSeats();
+    }
+
+    @GET
+    @Path("sse-notifications")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public void listenToEvents(@Context SseEventSink eventSink, @Context Sse sse) {
+        if (this.sseBroadcaster == null) {
+            this.sseBroadcaster = sse.newBroadcaster();
+        }
+        sseBroadcaster.register(eventSink);
     }
 
 }

@@ -15,7 +15,7 @@ spec:
         name: booking-db
     spec:
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        kubernetes.io/os: linux
       containers:
         - name: booking-db
           image: mysql:8
@@ -34,6 +34,12 @@ spec:
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 120
       volumes:
         - name: tmp-volume
           emptyDir:

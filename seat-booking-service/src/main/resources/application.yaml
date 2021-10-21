@@ -1,14 +1,14 @@
 server:
-  port: 8080
+  port: 7001
   host: 0.0.0.0
   static.classpath:
     location: /WEB
     welcome: index.html
 
 mp.lra:
-  coordinator.url: http://lra-coordinator:8070/lra-coordinator
+  coordinator.url: http://lra-coordinator:8080/lra-coordinator
   propagation.active: true
-  participant.url: http://seat-booking-service:8080
+  participant.url: http://seat-booking-service:7001
 
 javax.sql.DataSource:
   booking-db:

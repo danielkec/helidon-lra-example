@@ -9,8 +9,8 @@ spec:
   selector:
     app: seat-booking-service
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 7001
+    targetPort: 7001
     name: http
 ---
 
@@ -38,4 +38,9 @@ spec:
           image: cinema-reservation/seat-booking-service:1.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - containerPort: 7001
+      initContainers:
+        - name: wait-for-db
+          image: curlimages/curl:latest
+          command: [ "/bin/sh","-c" ]
+          args: [ "while [[ $(kubectl get pods -l name=booking-db -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') != \"True\" ]]; do echo 'waiting for pod' && sleep 1; done" ]

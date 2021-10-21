@@ -16,12 +16,14 @@ import javax.persistence.OneToOne;
 @NamedQueries({
         @NamedQuery(name = "getBookingBySeat",
                 query = "SELECT b FROM Booking b INNER JOIN b.seat s WHERE s.id = :id"),
+        @NamedQuery(name = "getBookingByLraId",
+                query = "SELECT b FROM Booking b INNER JOIN b.seat s WHERE b.lraId = :lraId"),
 })
 public class Booking {
 
     private Long id;
     private String firstName;
-    private String paymentUuid;
+    private String lraId;
     private Seat seat;
 
     public void setId(Long id) {
@@ -38,8 +40,8 @@ public class Booking {
         return firstName;
     }
 
-    public String getPaymentUuid() {
-        return paymentUuid;
+    public String getLraId() {
+        return lraId;
     }
 
     @OneToOne
@@ -52,8 +54,8 @@ public class Booking {
         this.firstName = firstName;
     }
 
-    public void setPaymentUuid(String paymentUuid) {
-        this.paymentUuid = paymentUuid;
+    public void setLraId(String lraId) {
+        this.lraId = lraId;
     }
 
     public void setSeat(Seat seat) {

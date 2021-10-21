@@ -57,6 +57,12 @@
     </div>
 </div>
 
+<div id="notification-view" class="notification-box" style="position: absolute">
+    <div>
+        <div id="notification-message"></div>
+    </div>
+</div>
+
 <script>
     const selectionView = $("#selection-view");
     const paymentView = $("#payment-view");
@@ -67,6 +73,10 @@
     const payButton = $("#pay-button");
     const errorButton = $("#error-button");
     const paidSeat = $("#paid-seat");
+    const cardNumber = $("#card-number");
+    const amount = $("#amount");
+
+    new EventSource("booking/sse-notifications").onmessage = e => this.onSSE(e.data);
 
     errorView.hide();
     paymentView.hide();
@@ -80,7 +90,14 @@
         selectionView.show();
     });
 
+    function onSSE(json) {
+        let data = JSON.parse(json);
+        notify("Seat "+ data.id + " cleared!")
+        clearBooking(data.id)
+    }
+
     payButton.click(function () {
+        makePayment(cardNumber.val(), amount.val(), paymentView.attr("data-lraId"))
         paymentView.hide();
         reloadSeats();
         clearSelection();
@@ -92,6 +109,8 @@
         createBooking(selectedSeat.html())
             .then(res => {
                 if (res.ok) {
+                    let lraId = res.headers.get("Long-Running-Action");
+                    paymentView.attr("data-lraId", lraId);
                     paymentView.show();
                 } else {
                     res.json().then(json => {
@@ -116,6 +135,17 @@
         })
     }
 
+    function makePayment(cardNumber, amount, lraId) {
+        return fetch('/booking/payment', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Long-Running-Action': lraId
+            },
+            body: JSON.stringify({"cardNumber": cardNumber, "amount": amount})
+        })
+    }
+
     function reloadSeats() {
         fetch('/booking/seat', {
             method: 'GET'
@@ -131,10 +161,21 @@
         })
     }
 
+    function notify(msg){
+        $("#notification-message").html(msg);
+        $("#notification-view").show().delay(3000).fadeOut();
+    }
+
     function onSelection(id) {
         paidSeat.html(id);
         selectedSeat.html(id);
         reserveButton.show();
+    }
+
+    function clearBooking(seatId) {
+        let seatEl = $("#seat-" + seatId);
+        seatEl.removeClass("reserved-seat");
+        seatEl.addClass("free-seat");
     }
 
     function clearSelection() {

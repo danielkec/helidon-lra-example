@@ -21,9 +21,7 @@ FROM maven:3.6-jdk-11 as build
 WORKDIR /helidon-frm
 RUN apt-get -y update
 RUN apt-get -y install git
-RUN git clone https://github.com/danielkec/helidon.git
-RUN cd helidon && git fetch && git checkout lra-fixes
-RUN cd helidon && ls -la
+RUN git clone https://github.com/oracle/helidon.git
 RUN cd helidon && mvn install -DskipTests
 ##################################################
 
