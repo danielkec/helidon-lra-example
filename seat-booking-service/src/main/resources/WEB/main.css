@@ -136,6 +136,16 @@ input {
     padding: 10%;
 }
 
+.notification-box {
+    background-color: #222426;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    margin-left: 35%;
+    margin-right: 35%;
+    padding: 2%;
+}
+
 #payment-view {
     background-color: #222426;
     display: flex;

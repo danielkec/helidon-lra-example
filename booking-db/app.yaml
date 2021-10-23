@@ -18,28 +18,30 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: booking-db
-          image: mysql:8
+          image: postgres:14
           env:
-            - name: MYSQL_ROOT_PASSWORD
-              value: "toor"
-            - name: MYSQL_DATABASE
+            - name: POSTGRES_DB
               value: "booking-db"
-            - name: MYSQL_USER
+            - name: POSTGRES_USER
               value: "user"
-            - name: MYSQL_PASSWORD
+            - name: POSTGRES_PASSWORD
               value: "pass"
           ports:
-            - name: mysql
-              containerPort: 3306
+            - name: postgres
+              containerPort: 5432
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume
           readinessProbe:
-            tcpSocket:
-              port: 3306
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 120
+            exec:
+              command: ["psql", "-w", "-U", "user", "-d", "booking-db", "-c", "SELECT 1"]
+            initialDelaySeconds: 5
+            timeoutSeconds: 15
+          livenessProbe:
+            exec:
+              command: ["psql", "-w", "-U", "user", "-d", "booking-db", "-c", "SELECT 1"]
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
       volumes:
         - name: tmp-volume
           emptyDir:
@@ -53,7 +55,7 @@ metadata:
     name: booking-db
 spec:
   ports:
-    - port: 3306
-      targetPort: 3306
+    - port: 5432
+      targetPort: 5432
   selector:
     name: booking-db

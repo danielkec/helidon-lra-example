@@ -12,10 +12,10 @@ mp.lra:
 
 javax.sql.DataSource:
   booking-db:
-    dataSourceClassName: com.mysql.cj.jdbc.MysqlDataSource
+    dataSourceClassName: org.postgresql.ds.PGPoolingDataSource
     dataSource:
       serverName: booking-db
-      port: 3306
+      portNumber: 5432
       databaseName: booking-db
       user: user
       password: pass

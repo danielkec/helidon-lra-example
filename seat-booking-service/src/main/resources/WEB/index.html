@@ -57,13 +57,15 @@
     </div>
 </div>
 
-<div id="notification-view" class="notification-box" style="position: absolute">
+<div id="notification-view" class="notification-box">
     <div>
         <div id="notification-message"></div>
     </div>
 </div>
 
 <script>
+    const notificationView = $("#notification-view");
+    const notificationMessage = $("#notification-message");
     const selectionView = $("#selection-view");
     const paymentView = $("#payment-view");
     const errorView = $("#error-view");
@@ -78,6 +80,7 @@
 
     new EventSource("booking/sse-notifications").onmessage = e => this.onSSE(e.data);
 
+    notificationView.hide();
     errorView.hide();
     paymentView.hide();
     reserveButton.hide();
@@ -92,7 +95,7 @@
 
     function onSSE(json) {
         let data = JSON.parse(json);
-        notify("Seat "+ data.id + " cleared!")
+        notify("Payment for reserved seat "+ data.id + " failed!")
         clearBooking(data.id)
     }
 
@@ -162,8 +165,8 @@
     }
 
     function notify(msg){
-        $("#notification-message").html(msg);
-        $("#notification-view").show().delay(3000).fadeOut();
+        notificationMessage.html(msg);
+        notificationView.show().delay(3000).fadeOut();
     }
 
     function onSelection(id) {

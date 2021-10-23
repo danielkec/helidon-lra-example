@@ -6,11 +6,11 @@
                                  http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
   <persistence-unit name="booking" transaction-type="JTA">
     <jta-data-source>booking-db</jta-data-source>
-    <class>io.helidon.example.lra.booking.Booking</class>
     <class>io.helidon.example.lra.booking.Seat</class>
+    <class>io.helidon.example.lra.booking.Booking</class>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect"/>
     </properties>
   </persistence-unit>
 </persistence>

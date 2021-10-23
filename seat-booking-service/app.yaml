@@ -39,8 +39,3 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 7001
-      initContainers:
-        - name: wait-for-db
-          image: curlimages/curl:latest
-          command: [ "/bin/sh","-c" ]
-          args: [ "while [[ $(kubectl get pods -l name=booking-db -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') != \"True\" ]]; do echo 'waiting for pod' && sleep 1; done" ]
