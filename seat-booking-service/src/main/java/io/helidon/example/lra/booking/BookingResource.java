@@ -55,12 +55,15 @@ public class BookingResource {
 
     @PUT
     @Path("/create/{id}")
-    @LRA(value = LRA.Type.REQUIRES_NEW, end = false, timeLimit = 15)
+    // Create new LRA transaction which won't end after this JAX-RS method end
+    // Time limit for new LRA is 30 sec
+    @LRA(value = LRA.Type.REQUIRES_NEW, end = false, timeLimit = 30)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createBooking(@HeaderParam(LRA.LRA_HTTP_CONTEXT_HEADER) URI lraId,
                                   @PathParam("id") long id,
                                   Booking booking) {
 
+        // LRA ID assigned by coordinator is provided as artificial request header
         booking.setLraId(lraId.toASCIIString());
 
         if (repository.createBooking(booking, id)) {
@@ -80,12 +83,15 @@ public class BookingResource {
 
     @PUT
     @Path("/payment")
+    // Needs to be called within LRA transaction context
+    // Doesn't end LRA transaction
     @LRA(value = LRA.Type.MANDATORY, end = false)
     @Produces(MediaType.APPLICATION_JSON)
     public Response makePayment(@HeaderParam(LRA.LRA_HTTP_CONTEXT_HEADER) URI lraId,
                                 JsonObject jsonObject) {
-        //jsonObject.getString("");
         LOG.info("Payment " + jsonObject.toString());
+        // Notice that we don't need to propagate LRA header
+        // When using JAX-RS client, LRA header is propagated automatically
         ClientBuilder.newClient()
                 .target("http://payment-service:7002")
                 .path("/payment/confirm")

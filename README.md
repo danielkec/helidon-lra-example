@@ -12,7 +12,8 @@ As we work directly with
 [minikube docker daemon](https://minikube.sigs.k8s.io/docs/handbook/pushing/#1-pushing-directly-to-the-in-cluster-docker-daemon-docker-env)
 all we need to do is build the docker images.
 ```shell
-bash build.sh;
+eval $(minikube docker-env);
+bash build.sh
 ```
 First build can take few minutes for all the artefacts to download,
 subsequent builds are going to be much faster as the layer with dependencies gets cached.

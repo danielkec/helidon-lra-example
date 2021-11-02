@@ -34,6 +34,7 @@ public class PaymentResource {
 
     @PUT
     @Path("/confirm")
+    // This resource method ends/commits LRA transaction as successfully completed
     @LRA(value = LRA.Type.MANDATORY, end = true)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

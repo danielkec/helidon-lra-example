@@ -112,6 +112,7 @@
         createBooking(selectedSeat.html())
             .then(res => {
                 if (res.ok) {
+                    // Notice how we can access and store LRA id even on the client side
                     let lraId = res.headers.get("Long-Running-Action");
                     paymentView.attr("data-lraId", lraId);
                     paymentView.show();
