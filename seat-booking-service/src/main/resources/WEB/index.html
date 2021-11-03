@@ -140,7 +140,7 @@
     }
 
     function makePayment(cardNumber, amount, lraId) {
-        return fetch('/booking/payment', {
+        return fetch('/payment-proxy/payment', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

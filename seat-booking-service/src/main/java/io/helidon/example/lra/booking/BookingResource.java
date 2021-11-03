@@ -11,7 +11,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 import javax.persistence.NoResultException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -19,16 +18,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseBroadcaster;
 import javax.ws.rs.sse.SseEventSink;
-
-import io.helidon.microprofile.server.Server;
 
 import org.eclipse.microprofile.lra.annotation.Compensate;
 import org.eclipse.microprofile.lra.annotation.Complete;
@@ -41,14 +36,9 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
 public class BookingResource {
 
     private static final Logger LOG = Logger.getLogger(BookingResource.class.getSimpleName());
-
-    private SseBroadcaster sseBroadcaster;
-
     private static final JsonBuilderFactory JSON = Json.createBuilderFactory(Collections.emptyMap());
 
-    public static void main(String[] args) {
-        Server.create().start();
-    }
+    private SseBroadcaster sseBroadcaster;
 
     @Inject
     BookingService repository;
@@ -81,38 +71,12 @@ public class BookingResource {
         }
     }
 
-    @PUT
-    @Path("/payment")
-    // Needs to be called within LRA transaction context
-    // Doesn't end LRA transaction
-    @LRA(value = LRA.Type.MANDATORY, end = false)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response makePayment(@HeaderParam(LRA.LRA_HTTP_CONTEXT_HEADER) URI lraId,
-                                JsonObject jsonObject) {
-        LOG.info("Payment " + jsonObject.toString());
-        // Notice that we don't need to propagate LRA header
-        // When using JAX-RS client, LRA header is propagated automatically
-        ClientBuilder.newClient()
-                .target("http://payment-service:7002")
-                .path("/payment/confirm")
-                .request()
-                .rx()
-                .put(Entity.entity(jsonObject, MediaType.APPLICATION_JSON))
-                .whenComplete((res, t) -> {
-                    if (res != null) {
-                        LOG.info(res.getStatus() + " " + res.getStatusInfo().getReasonPhrase());
-                        res.close();
-                    }
-                });
-        return Response.accepted().build();
-    }
-
     @Compensate
     public Response paymentFailed(URI lraId) {
         LOG.info("Payment failed! " + lraId);
         repository.clearBooking(lraId)
                 .ifPresent(booking -> {
-                    LOG.info("Booking for seat " + booking.getSeat().getId() + "cleared!");
+                    LOG.info("Booking for seat " + booking.getSeat().getId() + " cleared!");
                     Optional.ofNullable(sseBroadcaster)
                             .ifPresent(b -> b.broadcast(new OutboundEvent.Builder()
                                     .data(booking.getSeat())
@@ -120,6 +84,8 @@ public class BookingResource {
                                     .build())
                             );
                 });
+
+        // If the participant status is not confirmed as completed, coordinator retries the call eventually
         return Response.ok(ParticipantStatus.Completed.name()).build();
     }
 

@@ -25,12 +25,7 @@ import org.eclipse.microprofile.lra.annotation.ws.rs.LRA;
 public class PaymentResource {
 
     private static final Logger LOG = Logger.getLogger(PaymentResource.class.getName());
-
     private static final JsonBuilderFactory JSON = Json.createBuilderFactory(Collections.emptyMap());
-
-    public static void main(String[] args) {
-        Server.create().start();
-    }
 
     @PUT
     @Path("/confirm")
@@ -42,9 +37,9 @@ public class PaymentResource {
                                 Payment payment) {
         if (!payment.cardNumber.equals("0000-0000-0000")) {
             LOG.warning("Payment " + payment.cardNumber);
-            throw new IllegalStateException("Card " + payment.cardNumber + " is not valid! "+lraId);
+            throw new IllegalStateException("Card " + payment.cardNumber + " is not valid! " + lraId);
         }
-        LOG.info("Payment " + payment.cardNumber+ " " +lraId);
+        LOG.info("Payment " + payment.cardNumber + " " + lraId);
         return Response.ok(JSON.createObjectBuilder().add("result", "success").build()).build();
     }
 
