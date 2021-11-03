@@ -20,18 +20,15 @@ metadata:
   name: lra-coordinator
   labels:
     app: lra-coordinator
-    version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: lra-coordinator
-      version: v1
   template:
     metadata:
       labels:
         app: lra-coordinator
-        version: v1
     spec:
       containers:
         - name: lra-coordinator

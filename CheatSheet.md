@@ -1,60 +1,28 @@
 ## Prepare minikube
 ```shell
-minikube start --driver=virtualbox
+minikube start
 # Use minikube's docker registry
-eval $(minikube docker-env) 
-```
-
-## Cleanup
-```shell
-# delete all pods and services
-kubectl delete deployment lra-coordinator
-kubectl delete pods,services -l name=lra-coordinator
+eval $(minikube docker-env)
 ```
 
 ## Investigate
-```shell    
+```shell
+# Set current namespace
+kubectl config set-context --current --namespace=cinema-reservation
 # List all pods
-kubectl get pods -o wide
-```
-# K8s Docker hub login
-```shell
-#danielkec/...
-docker login
-# Standard
-#cat ~/.docker/config.json
-# Snap installed docker
-cat ~/snap/docker/current/.docker/config.json
-# Create K8s secret
-kubectl create secret generic dockercred \
-    --from-file=.dockerconfigjson=/home/kec/snap/docker/current/.docker/config.json \
-    --type=kubernetes.io/dockerconfigjson
-    
-# Inspect created secret
-kubectl get secret dockercred --output=yaml
-```
+kubectl get pods
+# List all services
+kubectl get svc
 
-Use secret for pulling the image
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: private-reg
-spec:
-  containers:
-  - name: private-reg-container
-    image: <your-private-image>
-  imagePullSecrets:
-  - name: dockercred
-```
+# Inspect seat booking service
+kubectl logs --tail 100 -l app=seat-booking-service
+kubectl describe pod -l app=seat-booking-service
 
+# Inspect payment service
+kubectl logs --tail 100 -l app=payment-service
+kubectl describe pod -l app=payment-service
 
-```shell
-docker run --name booking-db \
-      -e MYSQL_ROOT_PASSWORD=toor \
-      -e MYSQL_DATABASE=booking-db \
-      -e MYSQL_USER=user \
-      -e MYSQL_PASSWORD=pass \
-      --network host \
-      mysql:8
+# Inspect coordinator service
+kubectl logs --tail 100 -l app=lra-coordinator
+kubectl describe pod -l app=lra-coordinator
 ```
