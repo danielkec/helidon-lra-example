@@ -142,7 +142,7 @@ To make your pushed images publicly available, open your OCI console and set bot
 [**Container Registry**](https://cloud.oracle.com/registry/containers/repos)
 
 
-![https://cloud.oracle.com/registry/containers/repos](../assets/lra/public-registry.png)
+![https://cloud.oracle.com/registry/containers/repos](images/public-registry.png)
 
 #### Deploy to OKE
 You can use the cloned helidon-lra-example repository in the OCI Cloud shell with your K8s descriptors.
