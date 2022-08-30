@@ -6,7 +6,7 @@ server:
     welcome: index.html
 
 mp.lra:
-  coordinator.url: http://lra-coordinator:8080/lra-coordinator
+  coordinator.url: http://lra-coordinator:8080/api/v1/lra-coordinator
   propagation.active: true
   participant.url: http://seat-booking-service:7001
 

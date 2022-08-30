@@ -1,3 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coordinator-envs
+data:
+  CONFIG_FILE: tcs.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcs-config
+data:
+  tcs.yaml: |
+    tmmAppName: tcs
+    tmmConfiguration:
+      listenAddr: 0.0.0.0:8080
+      internalAddr: http://127.0.0.1:8080
+      externalUrl: http://lra-coordinator:8080
+    #  externalUrl: http://vulcan:8080
+      xaCoordinator:
+        enabled: false
+      lraCoordinator:
+        enabled: true
+      tccCoordinator:
+        enabled: false
+      maxRetryCount: 10
+      minRetryInterval: 1000
+      maxRetryInterval: 10000
+      logging:
+        httpTraceEnabled: true
+        level: debug
+        devMode: true
+      storage:
+        type: memory
+      authentication:
+        enabled: false
+      authorization:
+        enabled: false
+      narayanaLraCompatibilityMode:
+        enabled: true
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -32,9 +73,20 @@ spec:
     spec:
       containers:
         - name: lra-coordinator
-          image: docker.io/jbosstm/lra-coordinator:5.12.1.Final
+          image: tmm:22.1.1
           imagePullPolicy: IfNotPresent
+          workingDir: /app/config
+          envFrom:
+            - configMapRef:
+                name: coordinator-envs
+          volumeMounts:
+            - mountPath: /app/config
+              name: config-volume
           ports:
             - containerPort: 8080
       imagePullSecrets:
         - name: dockercred
+      volumes:
+        - name: config-volume
+          configMap:
+            name: tcs-config
