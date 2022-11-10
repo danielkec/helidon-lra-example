@@ -16,7 +16,6 @@ data:
       listenAddr: 0.0.0.0:8080
       internalAddr: http://127.0.0.1:8080
       externalUrl: http://lra-coordinator:8080
-    #  externalUrl: http://vulcan:8080
       xaCoordinator:
         enabled: false
       lraCoordinator:
@@ -35,6 +34,8 @@ data:
       authentication:
         enabled: false
       authorization:
+        enabled: false
+      serveTLS:
         enabled: false
       narayanaLraCompatibilityMode:
         enabled: true
@@ -73,7 +74,7 @@ spec:
     spec:
       containers:
         - name: lra-coordinator
-          image: tmm:22.1.1
+          image: container-registry.oracle.com/database/otmm:22.3
           imagePullPolicy: IfNotPresent
           workingDir: /app/config
           envFrom:
