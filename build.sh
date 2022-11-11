@@ -5,8 +5,6 @@ DIR=$(pwd)
 
 eval $(minikube docker-env)
 
-docker image load -i ./tmm-22.1.1.tgz
-
 for service in 'payment-service' 'seat-booking-service';
   do
     cd "${DIR}/${service}" || exit

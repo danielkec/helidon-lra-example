@@ -74,6 +74,7 @@ spec:
     spec:
       containers:
         - name: lra-coordinator
+          # Oracle MicroTx (Oracle Transaction Manager for Microservices)
           image: container-registry.oracle.com/database/otmm:22.3
           imagePullPolicy: IfNotPresent
           workingDir: /app/config
@@ -85,8 +86,6 @@ spec:
               name: config-volume
           ports:
             - containerPort: 8080
-      imagePullSecrets:
-        - name: dockercred
       volumes:
         - name: config-volume
           configMap:
